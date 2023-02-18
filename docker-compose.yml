@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+
+  fastapi:
+    build:
+      dockerfile: ./config/dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./config/.env
+    volumes:
+      - ./source:/app/source
+    depends_on:
+      - mongodb
+      - minio
+
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./config/.env
+
+  minio:
+    image: minio/minio
+    restart: always
+    command: server --address 0.0.0.0:9000 /data
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./config/.env
