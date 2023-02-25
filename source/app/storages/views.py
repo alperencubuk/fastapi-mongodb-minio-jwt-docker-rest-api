@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from source.app.auth.auth import auth
-from source.app.storages.schemas import Storage, StorageResponse, StorageUpdate
+from source.app.storages.schemas import (
+    Storage,
+    StorageId,
+    StorageResponse,
+    StorageUpdate,
+)
 from source.app.storages.services import (
     create_storage,
     get_all_storages,
@@ -21,7 +26,6 @@ storage_router = APIRouter(prefix="/storages", tags=["storages"])
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
-        status.HTTP_400_BAD_REQUEST: {"model": ExceptionModel},
         status.HTTP_409_CONFLICT: {"model": ExceptionModel},
     },
     tags=["storages"],
@@ -55,14 +59,15 @@ async def storage_get_all(user: dict = Depends(auth)):
     response_model_exclude_none=True,
     response_model_by_alias=False,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ExceptionModel},
         status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
         status.HTTP_404_NOT_FOUND: {"model": ExceptionModel},
     },
     tags=["storages"],
 )
-async def storage_get(storage_id: str, user: dict = Depends(auth)):
-    if storage := await get_storage(user_id=user.get("_id"), storage_id=storage_id):
+async def storage_get(storage_id: StorageId = Depends(), user: dict = Depends(auth)):
+    if storage := await get_storage(
+        user_id=user.get("_id"), storage_id=storage_id.storage_id
+    ):
         return storage
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -76,17 +81,18 @@ async def storage_get(storage_id: str, user: dict = Depends(auth)):
     response_model_exclude_none=True,
     response_model_by_alias=False,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ExceptionModel},
         status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
         status.HTTP_404_NOT_FOUND: {"model": ExceptionModel},
     },
     tags=["storages"],
 )
 async def storage_update(
-    storage_id: str, storage: StorageUpdate, user: dict = Depends(auth)
+    storage: StorageUpdate,
+    storage_id: StorageId = Depends(),
+    user: dict = Depends(auth),
 ):
     if updated_storage := await update_storage(
-        user_id=user.get("_id"), storage_id=storage_id, storage=storage
+        user_id=user.get("_id"), storage_id=storage_id.storage_id, storage=storage
     ):
         return updated_storage
     raise HTTPException(

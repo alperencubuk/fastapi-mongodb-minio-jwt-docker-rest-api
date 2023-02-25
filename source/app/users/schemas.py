@@ -70,7 +70,7 @@ class UserUpdateAdmin(UserUpdate):
         if role := values.get("role"):
             if role not in UserRole.values():
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail=f"Role must be in '{str(UserRole.values())}'",
                 )
         return values

@@ -26,7 +26,6 @@ user_router = APIRouter(prefix="/users")
     response_model_by_alias=False,
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ExceptionModel},
         status.HTTP_409_CONFLICT: {"model": ExceptionModel},
     },
     tags=["users"],
@@ -93,7 +92,6 @@ async def user_get(username: str, _=Depends(auth_admin)):
     response_model=UserResponseAdmin,
     response_model_by_alias=False,
     responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ExceptionModel},
         status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
         status.HTTP_404_NOT_FOUND: {"model": ExceptionModel},
         status.HTTP_409_CONFLICT: {"model": ExceptionModel},

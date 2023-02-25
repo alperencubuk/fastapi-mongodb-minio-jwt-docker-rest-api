@@ -1,8 +1,6 @@
 from os import getenv
 
 from bson import ObjectId
-from bson.errors import InvalidId
-from fastapi import HTTPException, status
 
 from source.app.files.client import MinioClient
 from source.app.storages.schemas import Storage, StorageCreate
@@ -22,16 +20,6 @@ async def storage_exist(user_id: ObjectId, storage_id: ObjectId) -> dict | None:
         {"_id": storage_id, "user_id": str(user_id)}
     ):
         return storage
-
-
-async def set_storage_id(storage_id: str) -> ObjectId:
-    try:
-        return ObjectId(storage_id)
-    except (InvalidId, TypeError):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Storage id '{storage_id}' is not valid",
-        )
 
 
 async def create_minio_storage() -> None:

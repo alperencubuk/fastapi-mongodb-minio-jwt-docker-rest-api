@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel, root_validator
 
 from source.app.storages.enums import StorageEndpoint, StoragePlatform
+from source.core.database import PyObjectId
 from source.core.schemas import CreateModel, ResponseModel, UpdateModel
 
 
@@ -17,7 +18,7 @@ class Storage(BaseModel):
         if platform := values.get("platform"):
             if platform not in StoragePlatform.values():
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail=f"Platform must be in '{str(StoragePlatform.values())}'",
                 )
         return values
@@ -57,3 +58,7 @@ class StorageUpdate(Storage):
 
 class StorageUpdateBase(UpdateModel, Endpoint, StorageUpdate):
     pass
+
+
+class StorageId(BaseModel):
+    storage_id: PyObjectId
