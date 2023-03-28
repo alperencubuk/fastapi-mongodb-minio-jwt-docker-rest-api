@@ -3,6 +3,7 @@ version: "3.9"
 services:
 
   fastapi:
+    container_name: api
     build:
       dockerfile: ./config/dockerfile
     ports:
@@ -16,6 +17,7 @@ services:
       - minio
 
   mongodb:
+    container_name: mongodb
     image: mongo
     restart: always
     ports:
@@ -24,6 +26,7 @@ services:
       - ./config/.env
 
   minio:
+    container_name: minio
     image: minio/minio
     restart: always
     command: server --address 0.0.0.0:9000 /data

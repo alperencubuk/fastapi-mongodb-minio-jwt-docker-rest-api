@@ -1,8 +1,6 @@
-from bson import ObjectId
-
 from source.app.users.schemas import User, UserCreate, UserUpdate, UserUpdateBase
 from source.app.users.utils import check_username
-from source.core.database import db
+from source.core.database import db, PyObjectId
 
 
 async def check_username_user(username: str) -> dict:
@@ -10,7 +8,7 @@ async def check_username_user(username: str) -> dict:
     return {"username": username, "available": available}
 
 
-async def create_user(user: User) -> dict:
+async def create_user(user: User) -> dict | None:
     if await check_username(username=user.username):
         user = UserCreate(**user.dict())
         new_user = await db["user"].insert_one(user.dict())
@@ -18,7 +16,7 @@ async def create_user(user: User) -> dict:
         return created_user
 
 
-async def update_user(user_id: ObjectId, user: UserUpdate) -> dict:
+async def update_user(user_id: PyObjectId, user: UserUpdate) -> dict | None:
     if not user.username or await check_username(
         username=user.username, user_id=user_id
     ):
@@ -29,6 +27,6 @@ async def update_user(user_id: ObjectId, user: UserUpdate) -> dict:
         return updated_user
 
 
-async def get_user(username: str) -> dict:
+async def get_user(username: str) -> dict | None:
     if user := await db["user"].find_one({"username": username}):
         return user

@@ -2,17 +2,13 @@ from enum import Enum
 from os import getenv
 
 
-class StoragePlatform(Enum):
+class StoragePlatform(str, Enum):
     MINIO = "minio"
     GOOGLE = "google"
     AWS = "aws"
 
-    @classmethod
-    def values(cls) -> list:
-        return [platform.value for platform in StoragePlatform]
 
-
-class StorageEndpoint(Enum):
+class StorageEndpoint(str, Enum):
     MINIO = getenv("MINIO_ENDPOINT")
     GOOGLE = "storage.googleapis.com"
     AWS = "s3.amazonaws.com"

@@ -1,15 +1,13 @@
 from datetime import datetime, timedelta
 from os import getenv
 
-from bson import ObjectId
-from bson.errors import InvalidId
 from fastapi import HTTPException, status
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWTClaimsError
 
 from source.app.auth.enums import TokenType
 from source.app.auth.utils import verify_password
-from source.core.database import db
+from source.core.database import db, PyObjectId
 
 
 async def authenticate_user(username: str, password: str) -> dict | None:
@@ -25,8 +23,8 @@ async def authenticate_user(username: str, password: str) -> dict | None:
 
 async def authenticate_token(user_id: str, password_ts: float) -> dict | None:
     try:
-        user_id = ObjectId(user_id)
-    except (InvalidId, TypeError):
+        user_id = PyObjectId(user_id)
+    except ValueError:
         return None
     if user := await db["user"].find_one({"_id": user_id}):
         if password_ts == user.get("password_ts"):
@@ -38,7 +36,7 @@ async def authenticate_token(user_id: str, password_ts: float) -> dict | None:
             )
 
 
-async def generate_token(user_id: ObjectId, password_ts: float) -> dict:
+async def generate_token(user_id: PyObjectId, password_ts: float) -> dict:
     access = {
         "user_id": str(user_id),
         "password_ts": password_ts,

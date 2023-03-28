@@ -1,4 +1,3 @@
-from fastapi import HTTPException, status
 from pydantic import BaseModel, root_validator
 
 from source.app.storages.enums import StorageEndpoint, StoragePlatform
@@ -8,24 +7,14 @@ from source.core.schemas import CreateModel, ResponseModel, UpdateModel
 
 class Storage(BaseModel):
     name: str | None
-    platform: str
+    platform: StoragePlatform
     access_key: str
     secret_key: str
     bucket_name: str
 
-    @root_validator
-    def platform_validator(cls, values) -> dict:
-        if platform := values.get("platform"):
-            if platform not in StoragePlatform.values():
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail=f"Platform must be in '{str(StoragePlatform.values())}'",
-                )
-        return values
-
 
 class Endpoint(BaseModel):
-    endpoint: str = None
+    endpoint: StorageEndpoint = None
 
     @root_validator
     def endpoint_validator(cls, values) -> dict:
@@ -40,17 +29,17 @@ class Endpoint(BaseModel):
 
 
 class StorageCreate(CreateModel, Endpoint, Storage):
-    user_id: str
+    user_id: PyObjectId
 
 
 class StorageResponse(ResponseModel):
     name: str | None
-    platform: str
+    platform: StoragePlatform
     bucket_name: str
 
 
 class StorageUpdate(Storage):
-    platform: str | None
+    platform: StoragePlatform | None
     access_key: str | None
     secret_key: str | None
     bucket_name: str | None

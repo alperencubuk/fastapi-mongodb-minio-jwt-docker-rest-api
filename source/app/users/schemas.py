@@ -1,7 +1,6 @@
 from datetime import datetime
 from os import getenv
 
-from fastapi import HTTPException, status
 from pydantic import BaseModel, EmailStr, Field, root_validator
 from pytz import timezone
 
@@ -62,18 +61,8 @@ class UserUpdate(User):
 
 
 class UserUpdateAdmin(UserUpdate):
-    role: str | None
+    role: UserRole | None
     active: bool | None
-
-    @root_validator
-    def role_validator(cls, values) -> dict:
-        if role := values.get("role"):
-            if role not in UserRole.values():
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail=f"Role must be in '{str(UserRole.values())}'",
-                )
-        return values
 
 
 class UserUpdateBase(UpdateModel, UserUpdateAdmin):

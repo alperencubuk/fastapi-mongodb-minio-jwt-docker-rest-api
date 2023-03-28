@@ -1,13 +1,11 @@
 from os import getenv
 
-from bson import ObjectId
-
 from source.app.users.enums import UserRole
 from source.app.users.schemas import User, UserCreate
-from source.core.database import db
+from source.core.database import db, PyObjectId
 
 
-async def check_username(username: str, user_id: ObjectId = None) -> bool:
+async def check_username(username: str, user_id: PyObjectId = None) -> bool:
     if user := await db["user"].find_one({"username": username}):
         if user.get("_id") != user_id:
             return False

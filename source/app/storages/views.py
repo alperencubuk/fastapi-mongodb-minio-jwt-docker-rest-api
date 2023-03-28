@@ -64,14 +64,14 @@ async def storage_get_all(user: dict = Depends(auth)):
     },
     tags=["storages"],
 )
-async def storage_get(storage_id: StorageId = Depends(), user: dict = Depends(auth)):
+async def storage_get(payload: StorageId = Depends(), user: dict = Depends(auth)):
     if storage := await get_storage(
-        user_id=user.get("_id"), storage_id=storage_id.storage_id
+        user_id=user.get("_id"), storage_id=payload.storage_id
     ):
         return storage
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Storage '{storage_id}' not found",
+        detail=f"Storage '{payload.storage_id}' not found",
     )
 
 
@@ -88,14 +88,14 @@ async def storage_get(storage_id: StorageId = Depends(), user: dict = Depends(au
 )
 async def storage_update(
     storage: StorageUpdate,
-    storage_id: StorageId = Depends(),
+    payload: StorageId = Depends(),
     user: dict = Depends(auth),
 ):
     if updated_storage := await update_storage(
-        user_id=user.get("_id"), storage_id=storage_id.storage_id, storage=storage
+        user_id=user.get("_id"), storage_id=payload.storage_id, storage=storage
     ):
         return updated_storage
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Storage '{storage_id}' not found",
+        detail=f"Storage '{payload.storage_id}' not found",
     )
