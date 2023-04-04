@@ -1,5 +1,6 @@
 from enum import Enum
-from os import getenv
+
+from source.core.settings import settings
 
 
 class StoragePlatform(str, Enum):
@@ -9,6 +10,6 @@ class StoragePlatform(str, Enum):
 
 
 class StorageEndpoint(str, Enum):
-    MINIO = getenv("MINIO_ENDPOINT")
+    MINIO = settings.MINIO_ENDPOINT
     GOOGLE = "storage.googleapis.com"
     AWS = "s3.amazonaws.com"

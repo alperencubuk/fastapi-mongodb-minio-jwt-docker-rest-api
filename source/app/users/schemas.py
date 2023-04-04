@@ -1,5 +1,4 @@
 from datetime import datetime
-from os import getenv
 
 from pydantic import BaseModel, EmailStr, Field, root_validator
 from pytz import timezone
@@ -7,6 +6,7 @@ from pytz import timezone
 from source.app.auth.utils import get_password_hash
 from source.app.users.enums import UserRole
 from source.core.schemas import CreateModel, ResponseModel, UpdateModel
+from source.core.settings import settings
 
 
 class User(BaseModel):
@@ -44,7 +44,7 @@ class UserResponseAdmin(UserResponse):
 
     @root_validator
     def timezone_validator(cls, values) -> dict:
-        tz = timezone(getenv("TIME_ZONE"))
+        tz = timezone(settings.TIME_ZONE)
         values["created_at"] = (
             values.get("created_at").astimezone(tz=tz).strftime("%m.%d.%Y %H:%M:%S")
         )

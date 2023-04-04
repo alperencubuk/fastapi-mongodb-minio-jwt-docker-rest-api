@@ -1,12 +1,13 @@
-from os import fstat, getenv, path, remove
+from os import fstat, path, remove
 
 from fastapi import Form, UploadFile
 
 from source.core.database import PyObjectId
+from source.core.settings import settings
 
 
 def remove_file(filename: str, user_id: PyObjectId) -> None:
-    file_path = f"{getenv('TEMP_FOLDER')}/{user_id}/{filename}"
+    file_path = f"{settings.TEMP_FOLDER}/{user_id}/{filename}"
     if path.exists(file_path):
         remove(file_path)
 

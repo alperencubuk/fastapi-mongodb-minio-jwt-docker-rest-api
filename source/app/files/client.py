@@ -1,9 +1,8 @@
-from os import getenv
-
 from fastapi import HTTPException, UploadFile, status
 from minio import Minio
 
 from source.app.files.utils import file_size
+from source.core.settings import settings
 
 
 class MinioClient:
@@ -14,7 +13,7 @@ class MinioClient:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
-            secure=True if getenv("MINIO_SECURE") == "True" else False,
+            secure=True if settings.MINIO_SECURE == "True" else False,
         )
         self.bucket_name = bucket_name
 

@@ -1,6 +1,5 @@
 from asyncio import create_task
 from contextlib import asynccontextmanager
-from os import getenv
 from shutil import rmtree
 
 from fastapi import FastAPI
@@ -8,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from source.app.storages.utils import create_minio_storage
 from source.app.users.utils import create_admin_user
+from source.core.settings import settings
 from source.core.database import create_index
 from source.core.health import minio_health, mongodb_health
 from source.core.routers import api_router
@@ -20,10 +20,10 @@ async def lifespan(app: FastAPI):
     await create_admin_user()
     await create_minio_storage()
     yield
-    rmtree(getenv("TEMP_FOLDER"), ignore_errors=True)
+    rmtree(settings.TEMP_FOLDER, ignore_errors=True)
 
 
-app = FastAPI(title=getenv("APP_TITLE"), lifespan=lifespan)
+app = FastAPI(title=settings.APP_TITLE, lifespan=lifespan)
 
 app.include_router(api_router)
 

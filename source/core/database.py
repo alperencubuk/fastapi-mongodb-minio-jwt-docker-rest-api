@@ -1,10 +1,10 @@
-from os import getenv
-
 from bson import ObjectId
 from motor import motor_asyncio
 
+from source.core.settings import settings
+
 client = motor_asyncio.AsyncIOMotorClient(
-    getenv("MONGODB_URI"), serverSelectionTimeoutMS=10000
+    settings.MONGODB_URI, serverSelectionTimeoutMS=10000
 )
 db = client.database
 

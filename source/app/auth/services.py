@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from os import getenv
 
 from fastapi import HTTPException, status
 from jose import ExpiredSignatureError, JWTError, jwt
@@ -7,7 +6,8 @@ from jose.exceptions import JWTClaimsError
 
 from source.app.auth.enums import TokenType
 from source.app.auth.utils import verify_password
-from source.core.database import db, PyObjectId
+from source.core.database import PyObjectId, db
+from source.core.settings import settings
 
 
 async def authenticate_user(username: str, password: str) -> dict | None:
@@ -41,22 +41,20 @@ async def generate_token(user_id: PyObjectId, password_ts: float) -> dict:
         "user_id": str(user_id),
         "password_ts": password_ts,
         "exp": datetime.utcnow()
-        + timedelta(minutes=float(getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))),
+        + timedelta(minutes=float(settings.ACCESS_TOKEN_EXPIRE_MINUTES)),
         "type": TokenType.ACCESS.value,
     }
     refresh = access.copy()
     refresh.update(
         {
             "exp": datetime.utcnow()
-            + timedelta(days=float(getenv("REFRESH_TOKEN_EXPIRE_DAYS"))),
+            + timedelta(days=float(settings.REFRESH_TOKEN_EXPIRE_DAYS)),
             "type": TokenType.REFRESH.value,
         }
     )
-    access_token = jwt.encode(
-        access, getenv("SECRET_KEY"), algorithm=getenv("ALGORITHM")
-    )
+    access_token = jwt.encode(access, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     refresh_token = jwt.encode(
-        refresh, getenv("SECRET_KEY"), algorithm=getenv("ALGORITHM")
+        refresh, settings.SECRET_KEY, algorithm=settings.ALGORITHM
     )
     return {
         "access_token": access_token,
@@ -67,7 +65,7 @@ async def generate_token(user_id: PyObjectId, password_ts: float) -> dict:
 
 async def decode_token(token: str) -> dict | None:
     try:
-        return jwt.decode(token, getenv("SECRET_KEY"), algorithms=getenv("ALGORITHM"))
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
     except (JWTError, ExpiredSignatureError, JWTClaimsError):
         return None
 
