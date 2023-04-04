@@ -13,7 +13,7 @@ class MinioClient:
             endpoint=endpoint,
             access_key=access_key,
             secret_key=secret_key,
-            secure=True if settings.MINIO_SECURE == "True" else False,
+            secure=settings.MINIO_SECURE,
         )
         self.bucket_name = bucket_name
 

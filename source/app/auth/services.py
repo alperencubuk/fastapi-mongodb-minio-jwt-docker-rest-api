@@ -41,14 +41,14 @@ async def generate_token(user_id: PyObjectId, password_ts: float) -> dict:
         "user_id": str(user_id),
         "password_ts": password_ts,
         "exp": datetime.utcnow()
-        + timedelta(minutes=float(settings.ACCESS_TOKEN_EXPIRE_MINUTES)),
+        + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         "type": TokenType.ACCESS.value,
     }
     refresh = access.copy()
     refresh.update(
         {
             "exp": datetime.utcnow()
-            + timedelta(days=float(settings.REFRESH_TOKEN_EXPIRE_DAYS)),
+            + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
             "type": TokenType.REFRESH.value,
         }
     )

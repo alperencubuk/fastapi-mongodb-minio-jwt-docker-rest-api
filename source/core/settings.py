@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     MINIO_ROOT_PASSWORD: str = "password"
     MINIO_HOST: str = "minio"
     MINIO_PORT: int = 9000
-    MINIO_SECURE: str = "False"
+    MINIO_SECURE: bool = False
     MINIO_BUCKET_NAME: str = "minio-bucket"
     MINIO_ENDPOINT: str = f"{MINIO_HOST}:{MINIO_PORT}"
 
