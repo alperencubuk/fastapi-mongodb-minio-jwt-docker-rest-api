@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from source.app.auth.auth import auth
 from source.app.storages.schemas import (
-    Storage,
     StorageId,
+    StorageRequest,
     StorageResponse,
     StorageUpdate,
 )
@@ -30,7 +30,7 @@ storage_router = APIRouter(prefix="/storages", tags=["storages"])
     },
     tags=["storages"],
 )
-async def storage_create(storage: Storage, user: dict = Depends(auth)):
+async def storage_create(storage: StorageRequest, user: dict = Depends(auth)):
     if created_storage := await create_storage(
         user_id=user.get("_id"), storage=storage
     ):

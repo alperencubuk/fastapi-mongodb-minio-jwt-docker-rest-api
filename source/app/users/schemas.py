@@ -9,7 +9,7 @@ from source.core.schemas import CreateModel, ResponseModel, UpdateModel
 from source.core.settings import settings
 
 
-class User(BaseModel):
+class UserRequest(BaseModel):
     username: str
     password: str
     email: EmailStr
@@ -17,7 +17,7 @@ class User(BaseModel):
     last_name: str | None
 
 
-class UserCreate(CreateModel, User):
+class User(CreateModel, UserRequest):
     role: str = UserRole.USER.value
     active: bool = True
     password_ts: float = Field(default_factory=datetime.utcnow().timestamp)
@@ -54,7 +54,7 @@ class UserResponseAdmin(UserResponse):
         return values
 
 
-class UserUpdate(User):
+class UserUpdate(UserRequest):
     username: str | None
     password: str | None
     email: EmailStr | None

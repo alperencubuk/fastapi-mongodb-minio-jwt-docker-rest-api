@@ -5,7 +5,7 @@ from source.core.database import PyObjectId
 from source.core.schemas import CreateModel, ResponseModel, UpdateModel
 
 
-class Storage(BaseModel):
+class StorageRequest(BaseModel):
     name: str | None
     platform: StoragePlatform
     access_key: str
@@ -28,7 +28,7 @@ class Endpoint(BaseModel):
         return values
 
 
-class StorageCreate(CreateModel, Endpoint, Storage):
+class Storage(CreateModel, Endpoint, StorageRequest):
     user_id: PyObjectId
 
 
@@ -38,7 +38,7 @@ class StorageResponse(ResponseModel):
     bucket_name: str
 
 
-class StorageUpdate(Storage):
+class StorageUpdate(StorageRequest):
     platform: StoragePlatform | None
     access_key: str | None
     secret_key: str | None

@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from source.app.auth.auth import auth, auth_admin
 from source.app.users.schemas import (
-    User,
     Username,
+    UserRequest,
     UserResponse,
     UserResponseAdmin,
     UserUpdate,
@@ -30,7 +30,7 @@ user_router = APIRouter(prefix="/users")
     },
     tags=["users"],
 )
-async def user_create(user: User):
+async def user_create(user: UserRequest):
     if created_user := await create_user(user=user):
         return created_user
     raise HTTPException(

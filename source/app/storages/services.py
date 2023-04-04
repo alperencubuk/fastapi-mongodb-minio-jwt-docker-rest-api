@@ -1,6 +1,6 @@
 from source.app.storages.schemas import (
     Storage,
-    StorageCreate,
+    StorageRequest,
     StorageUpdate,
     StorageUpdateBase,
 )
@@ -8,9 +8,9 @@ from source.app.storages.utils import check_storage, storage_exist
 from source.core.database import PyObjectId, db
 
 
-async def create_storage(user_id: PyObjectId, storage: Storage) -> dict | None:
+async def create_storage(user_id: PyObjectId, storage: StorageRequest) -> dict | None:
     if not await check_storage(user_id=user_id, storage=storage):
-        storage = StorageCreate(user_id=user_id, **storage.dict())
+        storage = Storage(user_id=user_id, **storage.dict())
         new_storage = await db["storage"].insert_one(storage.dict())
         created_storage = await db["storage"].find_one({"_id": new_storage.inserted_id})
         return created_storage
