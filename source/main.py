@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from source.app.storages.utils import create_minio_storage
 from source.app.users.utils import create_admin_user
+from source.core.database import create_index
 from source.core.health import minio_health, mongodb_health
 from source.core.routers import api_router
 from source.core.schemas import HealthModel
@@ -15,6 +16,7 @@ from source.core.schemas import HealthModel
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await create_index()
     await create_admin_user()
     await create_minio_storage()
     yield

@@ -23,3 +23,7 @@ class PyObjectId(ObjectId):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(type="string")
+
+
+async def create_index():
+    await db["user"].create_index("username")
