@@ -3,9 +3,7 @@ from motor import motor_asyncio
 
 from source.core.settings import settings
 
-client = motor_asyncio.AsyncIOMotorClient(
-    settings.MONGO_URI, serverSelectionTimeoutMS=10000
-)
+client = motor_asyncio.AsyncIOMotorClient(settings.MONGO_URI)
 db = client.database
 
 
@@ -26,4 +24,4 @@ class PyObjectId(ObjectId):
 
 
 async def create_index():
-    await db["user"].create_index("username")
+    await db["user"].create_index("email")

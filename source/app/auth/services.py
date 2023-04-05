@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.exceptions import JWTClaimsError
+from pydantic import EmailStr
 
 from source.app.auth.enums import TokenType
 from source.app.auth.utils import verify_password
@@ -10,8 +11,8 @@ from source.core.database import PyObjectId, db
 from source.core.settings import settings
 
 
-async def authenticate_user(username: str, password: str) -> dict | None:
-    if user := await db["user"].find_one({"username": username}):
+async def authenticate_user(email: EmailStr, password: str) -> dict | None:
+    if user := await db["user"].find_one({"email": email}):
         if verify_password(password, user.get("password")):
             if user.get("active"):
                 return user

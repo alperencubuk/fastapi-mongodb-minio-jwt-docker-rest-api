@@ -12,7 +12,7 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 )
 async def token(credentials: Credentials):
     if user := await authenticate_user(
-        username=credentials.username, password=credentials.password
+        email=credentials.email, password=credentials.password
     ):
         return await generate_token(
             user_id=user.get("_id"),

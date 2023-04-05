@@ -33,5 +33,5 @@ class ExceptionModel(BaseModel):
 
 class HealthModel(BaseModel):
     api: bool
-    mongodb: bool
-    minio: bool
+    database: bool
+    storage: bool

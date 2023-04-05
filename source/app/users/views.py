@@ -1,33 +1,30 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
 
-from source.app.auth.auth import auth, auth_admin
-from source.app.users.schemas import (
-    Username,
-    UserRequest,
-    UserResponse,
-    UserResponseAdmin,
-    UserUpdate,
-    UserUpdateAdmin,
-)
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.background import BackgroundTasks
+
+from source.app.auth.auth import auth
+from source.app.users.schemas import User, UserRequest, UserResponse, UserUpdateRequest
 from source.app.users.services import (
-    check_username_user,
+    background_delete_user,
     create_user,
-    get_user,
+    delete_user,
     update_user,
 )
 from source.core.schemas import ExceptionModel
 
 user_router = APIRouter(prefix="/users")
+CurrentUser = Annotated[User, Depends(auth)]
 
 
 @user_router.post(
     "/",
     response_model=UserResponse,
     response_model_by_alias=False,
-    status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_409_CONFLICT: {"model": ExceptionModel},
     },
+    status_code=status.HTTP_201_CREATED,
     tags=["users"],
 )
 async def user_create(user: UserRequest):
@@ -35,7 +32,7 @@ async def user_create(user: UserRequest):
         return created_user
     raise HTTPException(
         status_code=status.HTTP_409_CONFLICT,
-        detail=f"Username '{user.username}' already exists",
+        detail=f"User '{user.email}' already exists",
     )
 
 
@@ -46,7 +43,7 @@ async def user_create(user: UserRequest):
     responses={status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel}},
     tags=["users"],
 )
-async def user_get_me(user: dict = Depends(auth)):
+async def user_get_me(user: CurrentUser):
     return user
 
 
@@ -60,61 +57,22 @@ async def user_get_me(user: dict = Depends(auth)):
     },
     tags=["users"],
 )
-async def user_update_me(payload: UserUpdate, user: dict = Depends(auth)):
-    if updated_user := await update_user(user_id=user.get("_id"), user=payload):
+async def user_update_me(payload: UserUpdateRequest, user: CurrentUser):
+    if updated_user := await update_user(user_id=user.id, user=payload):
         return updated_user
     raise HTTPException(
         status_code=status.HTTP_409_CONFLICT,
-        detail=f"Username '{payload.username}' already exists",
+        detail=f"User '{payload.email}' already exists",
     )
 
 
-@user_router.get(
-    "/{username}",
-    response_model=UserResponseAdmin,
+@user_router.delete(
+    "/",
     response_model_by_alias=False,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
-        status.HTTP_404_NOT_FOUND: {"model": ExceptionModel},
-    },
-    tags=["admin"],
-)
-async def user_get(username: str, _=Depends(auth_admin)):
-    if user := await get_user(username=username):
-        return user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail=f"User '{username}' not found"
-    )
-
-
-@user_router.patch(
-    "/{username}",
-    response_model=UserResponseAdmin,
-    response_model_by_alias=False,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel},
-        status.HTTP_404_NOT_FOUND: {"model": ExceptionModel},
-        status.HTTP_409_CONFLICT: {"model": ExceptionModel},
-    },
-    tags=["admin"],
-)
-async def user_update(username: str, payload: UserUpdateAdmin, _=Depends(auth_admin)):
-    if user := await get_user(username=username):
-        if updated_user := await update_user(user_id=user.get("_id"), user=payload):
-            return updated_user
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Username '{payload.username}' already exists",
-        )
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail=f"User '{username}' not found"
-    )
-
-
-@user_router.get(
-    "/username/{username}",
-    response_model=Username,
+    responses={status.HTTP_401_UNAUTHORIZED: {"model": ExceptionModel}},
+    status_code=status.HTTP_204_NO_CONTENT,
     tags=["users"],
 )
-async def user_check_username(username: str):
-    return await check_username_user(username=username)
+async def user_delete_me(background_tasks: BackgroundTasks, user: CurrentUser):
+    await delete_user(user_id=user.id)
+    background_tasks.add_task(background_delete_user, user_id=user.id)

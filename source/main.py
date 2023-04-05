@@ -1,29 +1,27 @@
-from asyncio import create_task
+from asyncio import gather
 from contextlib import asynccontextmanager
-from shutil import rmtree
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sentry_sdk import init
 
-from source.app.storages.utils import create_minio_storage
 from source.app.users.utils import create_admin_user
-from source.core.settings import settings
 from source.core.database import create_index
-from source.core.health import minio_health, mongodb_health
+from source.core.health import database_health, storage_health
 from source.core.routers import api_router
 from source.core.schemas import HealthModel
+from source.core.settings import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await create_index()
-    await create_admin_user()
-    await create_minio_storage()
+    await gather(create_index(), create_admin_user())
     yield
-    rmtree(settings.TEMP_FOLDER, ignore_errors=True)
 
 
-app = FastAPI(title=settings.APP_TITLE, lifespan=lifespan)
+init(dsn=settings.SENTRY_DSN)
+
+app = FastAPI(title=settings.APP_TITLE, version=settings.VERSION, lifespan=lifespan)
 
 app.include_router(api_router)
 
@@ -40,8 +38,5 @@ app.add_middleware(
 
 @app.get("/", response_model=HealthModel, tags=["health"])
 async def health_check():
-    mongodb_task = create_task(mongodb_health())
-    minio_task = create_task(minio_health())
-    mongodb = await mongodb_task
-    minio = await minio_task
-    return {"api": True, "mongodb": mongodb, "minio": minio}
+    database, storage = await gather(database_health(), storage_health())
+    return {"api": True, "database": database, "storage": storage}

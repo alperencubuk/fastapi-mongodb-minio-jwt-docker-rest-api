@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, Request, status
 
 from source.app.auth.services import auth_access
 from source.app.users.enums import UserRole
+from source.app.users.schemas import User
 
 
 async def auth_header(request: Request) -> str | None:
@@ -16,9 +17,9 @@ async def auth_header(request: Request) -> str | None:
     )
 
 
-async def auth_base(token: str, roles: list) -> dict:
+async def auth_base(token: str, roles: list) -> User:
     if user := await auth_access(token=token, roles=roles):
-        return user
+        return User(**user)
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired token",
@@ -26,11 +27,11 @@ async def auth_base(token: str, roles: list) -> dict:
     )
 
 
-async def auth(token: str = Depends(auth_header)) -> dict:
+async def auth(token: str = Depends(auth_header)) -> User:
     return await auth_base(
         token=token, roles=[UserRole.USER.value, UserRole.ADMIN.value]
     )
 
 
-async def auth_admin(token: str = Depends(auth_header)) -> dict:
-    return await auth_base(token=token, roles=[UserRole.ADMIN.value])
+async def auth_admin(token: str = Depends(auth_header)) -> User:
+    return await auth_base(token=token, roles=[str(UserRole.ADMIN.value)])

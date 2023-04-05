@@ -7,7 +7,7 @@ from source.core.database import client
 from source.core.settings import settings
 
 
-async def mongodb_health() -> bool:
+async def database_health() -> bool:
     try:
         await client.admin.command("ping")
         return True
@@ -15,10 +15,10 @@ async def mongodb_health() -> bool:
         return False
 
 
-async def minio_health() -> bool:
+async def storage_health() -> bool:
     try:
         if (
-            get(url=f"http://{settings.MINIO_URI}/minio/health/live").status_code
+            get(url=f"http://{settings.MINIO_ENDPOINT}/minio/health/live").status_code
             == status.HTTP_200_OK
         ):
             return True
