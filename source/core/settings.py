@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, root_validator
 
 
 class Settings(BaseSettings):
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     MONGO_INITDB_ROOT_PASSWORD: str = "password"
     MONGO_HOST: str = "mongodb"
     MONGO_PORT: int = 27017
-    MONGODB_URI: str = f"mongodb://{MONGO_INITDB_ROOT_USERNAME}:{MONGO_INITDB_ROOT_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}"
+    MONGO_URI: str = None
 
     MINIO_ROOT_USER: str = "username"
     MINIO_ROOT_PASSWORD: str = "password"
@@ -28,7 +28,16 @@ class Settings(BaseSettings):
     MINIO_PORT: int = 9000
     MINIO_SECURE: bool = False
     MINIO_BUCKET_NAME: str = "minio-bucket"
-    MINIO_ENDPOINT: str = f"{MINIO_HOST}:{MINIO_PORT}"
+    MINIO_URI: str = None
+
+    @root_validator
+    def uri_validator(cls, values) -> dict:
+        values["MONGO_URI"] = (
+            f'mongodb://{values["MONGO_INITDB_ROOT_USERNAME"]}:{values["MONGO_INITDB_ROOT_PASSWORD"]}'
+            f'@{values["MONGO_HOST"]}:{values["MONGO_PORT"]}'
+        )
+        values["MINIO_URI"] = f'{values["MINIO_HOST"]}:{values["MINIO_PORT"]}'
+        return values
 
 
 @lru_cache()

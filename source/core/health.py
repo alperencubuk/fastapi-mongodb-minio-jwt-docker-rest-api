@@ -18,7 +18,7 @@ async def mongodb_health() -> bool:
 async def minio_health() -> bool:
     try:
         if (
-            get(url=f"http://{settings.MINIO_ENDPOINT}/minio/health/live").status_code
+            get(url=f"http://{settings.MINIO_URI}/minio/health/live").status_code
             == status.HTTP_200_OK
         ):
             return True

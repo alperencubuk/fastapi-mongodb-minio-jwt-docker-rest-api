@@ -10,6 +10,6 @@ class StoragePlatform(str, Enum):
 
 
 class StorageEndpoint(str, Enum):
-    MINIO = settings.MINIO_ENDPOINT
+    MINIO = settings.MINIO_URI
     GOOGLE = "storage.googleapis.com"
     AWS = "s3.amazonaws.com"

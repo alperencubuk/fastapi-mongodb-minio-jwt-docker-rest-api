@@ -4,7 +4,7 @@ from motor import motor_asyncio
 from source.core.settings import settings
 
 client = motor_asyncio.AsyncIOMotorClient(
-    settings.MONGODB_URI, serverSelectionTimeoutMS=10000
+    settings.MONGO_URI, serverSelectionTimeoutMS=10000
 )
 db = client.database
 
