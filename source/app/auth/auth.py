@@ -28,9 +28,9 @@ async def auth_base(token: str, roles: list) -> dict:
 
 async def auth(token: str = Depends(auth_header)) -> dict:
     return await auth_base(
-        token=token, roles=[str(UserRole.USER.value), str(UserRole.ADMIN.value)]
+        token=token, roles=[UserRole.USER.value, UserRole.ADMIN.value]
     )
 
 
 async def auth_admin(token: str = Depends(auth_header)) -> dict:
-    return await auth_base(token=token, roles=[str(UserRole.ADMIN.value)])
+    return await auth_base(token=token, roles=[UserRole.ADMIN.value])
