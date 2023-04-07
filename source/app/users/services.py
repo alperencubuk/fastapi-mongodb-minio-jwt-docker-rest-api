@@ -22,9 +22,9 @@ async def update_user(user_id: PyObjectId, user: UserUpdate) -> dict | None:
     ):
         user = UserUpdateBase(**user.dict())
         fields_to_update = {k: v for k, v in user.dict().items() if v is not None}
-        await db["user"].update_one({"_id": user_id}, {"$set": fields_to_update})
-        updated_user = await db["user"].find_one({"_id": user_id})
-        return updated_user
+        return await db["user"].find_one_and_update(
+            {"_id": user_id}, {"$set": fields_to_update}, return_document=True
+        )
 
 
 async def get_user(username: str) -> dict | None:

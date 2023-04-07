@@ -22,12 +22,11 @@ async def update_storage(
     if await storage_exist(user_id=user_id, storage_id=storage_id):
         storage = StorageUpdateBase(**storage.dict())
         fields_to_update = {k: v for k, v in storage.dict().items() if v is not None}
-        await db["storage"].update_one(
+        return await db["storage"].find_one_and_update(
             {"_id": storage_id, "user_id": user_id},
             {"$set": fields_to_update},
+            return_document=True,
         )
-        updated_storage = await db["storage"].find_one({"_id": storage_id})
-        return updated_storage
 
 
 async def get_storage(user_id: PyObjectId, storage_id: PyObjectId) -> dict | None:
